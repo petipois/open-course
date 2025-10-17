@@ -1,0 +1,34 @@
+---
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/starwind/card";
+import { Icon } from "astro-icon/components";
+const { title, step, description, icon } = Astro.props;
+---
+
+<Card
+    class="p-6 border-border bg-card hover:shadow-lg transition-all duration-300"
+>
+    <CardHeader>
+        <CardTitle>
+            <div
+                class="w-16 h-16 rounded-full bg-purple-700 flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
+            >
+                <Icon name={icon} class="w-8 h-8 text-primary-foreground" />
+            </div></CardTitle
+        >
+        <CardDescription>  <div class="w-8 h-8 rounded-full bg-accent text-purple-700 flex items-center justify-center text-sm font-bold">
+          {step}
+        </div></CardDescription>
+    </CardHeader>
+
+    <CardContent>
+        <h3 class="text-lg font-semibold mb-2 text-purple-700">{title}</h3>
+        <p class="text-muted-foreground max-w-xs">{description}</p></CardContent
+    >
+</Card>

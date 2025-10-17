@@ -1,0 +1,57 @@
+---
+import FeatureCard from "./FeatureCard.astro"
+const Video = "mdi:video"
+const Upload = "mdi:upload"
+const CreditCard = "mdi:credit-card"
+const BarChart3 = "mdi:chart-bar"
+---
+<section class="py-20 px-4">
+        <div class="container mx-auto max-w-6xl">
+          <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+              Everything you need
+            </h2>
+            <p class="text-xl text-muted-foreground">
+              Powerful features for instructors and students
+            </p>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-8 mb-12">
+            <div>
+              <h3 class="text-2xl font-bold mb-6 text-foreground flex items-center gap-2">
+                For Instructors
+              </h3>
+              <div class="space-y-6">
+                <FeatureCard
+                  icon={Video}
+                  title="Create Courses"
+                  description="Build your course with lessons including titles, descriptions, and Mux video playback."
+                />
+                <FeatureCard
+                  icon={Upload}
+                  title="Easy Management"
+                  description="Add, edit, and organize lessons with a simple and intuitive interface."
+                />
+              </div>
+            </div>
+
+            <div>
+              <h3 class="text-2xl font-bold mb-6 text-foreground flex items-center gap-2">
+                 For Students
+              </h3>
+              <div class="space-y-6">
+                <FeatureCard
+                  icon={CreditCard}
+                  title="Secure Payments"
+                  description="Pay for courses securely and get instant access to all content."
+                />
+                <FeatureCard
+                  icon={BarChart3}
+                  title="Track Progress"
+                  description="Monitor your learning journey with progress bars and completed lesson tracking."
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>

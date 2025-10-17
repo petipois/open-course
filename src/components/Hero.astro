@@ -1,0 +1,24 @@
+---
+import Button from "@/components/starwind/button"
+---
+ <header class="relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-tr from-purple-700 via-background to-purple-700/30" />
+        <div class="relative container mx-auto px-4 py-20 md:py-32">
+          <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 text-foreground">
+              Build, host, and sell your own course
+            </h1>
+            <p class="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto">
+              OpenCourse is an open-source platform for creating and selling single courses with ease.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" class="text-lg px-8">
+                <a href="/instructor">Login as Instructor</a>
+              </Button>
+              <Button size="lg" variant="outline" class="text-lg px-8">
+                <a href="/course">View Course</a>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>

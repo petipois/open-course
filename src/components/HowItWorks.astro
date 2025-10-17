@@ -1,0 +1,46 @@
+---
+import StepCard from "./StepCard.astro"
+const BookOpen = "mdi:book"
+const Upload = "mdi:upload"
+const CreditCard = "mdi:credit-card"
+const BarChart3 = "mdi:chart-bar"
+---
+<section class="py-20 px-4 bg-purple-700/30">
+        <div class="container mx-auto max-w-6xl">
+          <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+              How it works
+            </h2>
+            <p class="text-xl text-muted-foreground">
+              From creation to completion in four simple steps
+            </p>
+          </div>
+
+          <div class="grid md:grid-cols-4 gap-8 md:gap-4">
+            <StepCard
+              icon={BookOpen}
+              step={1}
+              title="Create Course"
+              description="Instructor sets up course with title and description"
+            />
+            <StepCard
+              icon={Upload}
+              step={2}
+              title="Upload Lessons"
+              description="Add video lessons with titles and Mux playback IDs"
+            />
+            <StepCard
+              icon={CreditCard}
+              step={3}
+              title="Students Pay"
+              description="Students purchase course access securely"
+            />
+            <StepCard
+              icon={BarChart3}
+              step={4}
+              title="Track Progress"
+              description="Students learn and track their completion"
+            />
+          </div>
+        </div>
+      </section>
