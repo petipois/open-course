@@ -1,0 +1,185 @@
+---
+import MainLayout from "@/layouts/MainLayout.astro";
+import { Input } from "@/components/starwind/input";
+import { Button } from "@/components/starwind/button";
+import Mux from "@mux/mux-node";
+import { MuxUploader } from "@mux/mux-uploader-astro";
+
+const mux = new Mux({
+  tokenId: import.meta.env.MUX_TOKEN_ID,
+  tokenSecret: import.meta.env.MUX_TOKEN_SECRET,
+});
+
+const upload = await mux.video.uploads.create({
+  new_asset_settings: {
+    playback_policy: ["public"],
+    video_quality: "basic",
+  },
+  cors_origin: "*",
+});
+---
+
+<MainLayout>
+  <div class="min-h-screen bg-gray-50 py-12">
+    <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-6">
+        🎓 Instructor Dashboard
+      </h1>
+
+      <!-- Step Navigation -->
+      <div class="flex justify-between mb-8">
+        <div
+          class="flex items-center space-x-2 text-blue-600 font-medium border-b-2 border-blue-600 pb-1"
+        >
+          <span>1</span>
+          <span>Create Course</span>
+        </div>
+        <div class="flex items-center space-x-2 text-gray-400">
+          <span>2</span>
+          <span>Add Lessons</span>
+        </div>
+      </div>
+
+      <!-- Step 1: Create Course -->
+      <form
+        class="space-y-6"
+        id="course-form"
+        onsubmit="event.preventDefault(); nextStep();"
+      >
+        <div>
+          <label class="block text-gray-700 font-semibold mb-1"
+            >Course Title</label
+          >
+          <Input
+            name="title"
+            placeholder="e.g. Introduction to Astro"
+            required
+          />
+        </div>
+
+        <div>
+          <label class="block text-gray-700 font-semibold mb-1"
+            >Course Description</label
+          >
+          <textarea
+            name="description"
+            rows="4"
+            class="w-full rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-500 p-2"
+            placeholder="Write a short description..."
+            required
+          ></textarea>
+        </div>
+
+        <div>
+          <label class="block text-gray-700 font-semibold mb-1"
+            >Thumbnail Image</label
+          >
+          <Input type="file" name="thumbnail" accept="image/*" />
+        </div>
+
+        <div class="flex justify-end">
+          <Button type="submit" variant="primary">
+            Next: Add Lessons →
+          </Button>
+        </div>
+      </form>
+
+      <!-- Step 2: Add Lessons -->
+      <form
+        id="lesson-form"
+        class="hidden space-y-6"
+        onsubmit="event.preventDefault(); alert('Course created successfully!');"
+      >
+        <div class="border-t border-gray-200 pt-6">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+            🧩 Add Lessons
+          </h2>
+
+          <div id="lessons" class="space-y-4">
+            <!-- First lesson -->
+            <div class="lesson-item bg-gray-50 p-4 rounded-lg border">
+              <label class="block font-medium text-gray-700 mb-1"
+                >Lesson Title</label
+              >
+              <Input
+                name="lesson_title"
+                placeholder="Lesson 1: Introduction"
+              />
+
+              <label class="block font-medium text-gray-700 mt-3 mb-1"
+                >Lesson Description</label
+              >
+              <textarea
+                name="lesson_description"
+                rows="2"
+                class="w-full border-gray-300 p-2 rounded-lg"
+                placeholder="Brief summary..."
+              ></textarea>
+
+              <label class="block font-medium text-gray-700 mt-3 mb-1"
+                >Lesson Video</label
+              >
+
+              <!-- Disabled MuxUploader -->
+              <div class="relative opacity-50 pointer-events-none">
+                <MuxUploader endpoint={upload.url} />
+                <div
+                  class="absolute inset-0 bg-white/30 backdrop-blur-[1px] flex items-center justify-center text-gray-600 font-medium rounded-md"
+                >
+                  🔒 Uploader disabled
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-between mt-6">
+            <Button variant="ghost" id="add-lesson-btn" type="button">
+              + Add another lesson
+            </Button>
+
+            <Button type="submit" variant="success">
+              ✅ Publish Course
+            </Button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Hidden template for new lessons -->
+      <template id="lesson-template">
+        <div class="lesson-item bg-gray-50 p-4 rounded-lg border">
+          <label class="block font-medium text-gray-700 mb-1">Lesson Title</label>
+          <input type="text" class="w-full border-gray-300 p-2 rounded-lg" placeholder="Lesson title">
+
+          <label class="block font-medium text-gray-700 mt-3 mb-1">Lesson Description</label>
+          <textarea rows="2" class="w-full border-gray-300 p-2 rounded-lg" placeholder="Brief summary..."></textarea>
+
+          <label class="block font-medium text-gray-700 mt-3 mb-1">Lesson Video</label>
+          <div class="relative opacity-50 pointer-events-none">
+            <MuxUploader endpoint={upload.url} />
+            <div class="absolute inset-0 bg-white/30 backdrop-blur-[1px] flex items-center justify-center text-gray-600 font-medium rounded-md">
+              🔒 Uploader disabled
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <script is:inline>
+    const courseForm = document.getElementById("course-form");
+    const lessonForm = document.getElementById("lesson-form");
+    const addLessonBtn = document.getElementById("add-lesson-btn");
+    const lessonTemplate = document.getElementById("lesson-template");
+    const lessons = document.getElementById("lessons");
+
+    function nextStep() {
+      courseForm.classList.add("hidden");
+      lessonForm.classList.remove("hidden");
+    }
+
+    addLessonBtn.addEventListener("click", () => {
+      const clone = lessonTemplate.content.cloneNode(true);
+      lessons.appendChild(clone);
+    });
+  </script>
+</MainLayout>

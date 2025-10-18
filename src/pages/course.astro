@@ -1,0 +1,62 @@
+---
+import MainLayout from "@/layouts/MainLayout.astro";
+import Progress from "@/components/starwind/progress";
+---
+
+<MainLayout>
+  <div class="flex min-h-screen bg-gray-50">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow-lg border-r border-gray-100 p-6">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-6">📘 Lessons</h2>
+      <ul class="space-y-4 text-gray-700">
+        <li class="group cursor-pointer">
+          <div class="flex items-center justify-between mb-1">
+            <span class="group-hover:text-blue-600 font-medium">Lesson 1</span>
+            <span class="text-xs text-gray-400">10%</span>
+          </div>
+          <Progress id="lesson-1-progress" value={10} />
+        </li>
+
+        <li class="hover:text-blue-600 cursor-pointer font-medium">
+          Lesson 2
+        </li>
+        <li class="hover:text-blue-600 cursor-pointer font-medium">
+          Lesson 3
+        </li>
+        <li class="hover:text-blue-600 cursor-pointer font-medium">
+          Lesson 4
+        </li>
+        <li class="hover:text-blue-600 cursor-pointer font-medium">
+          Lesson 5
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 px-12 py-10">
+      <div class="max-w-3xl mx-auto">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Lesson 1</h1>
+        <p class="text-gray-600 mb-8">
+          Explore the fundamentals of modern web development. Learn step by
+          step through interactive examples and practical videos.
+        </p>
+
+        <div class="bg-white rounded-2xl shadow-md p-6">
+          <p class="text-gray-800 leading-relaxed">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga ad
+            nihil, corrupti nulla aliquam distinctio magnam repellat atque
+            iure? Expedita suscipit inventore fugiat omnis neque libero iusto,
+            at officiis ab!
+          </p>
+
+          <!-- Placeholder for Mux video -->
+          <div
+            class="mt-6 bg-gray-200 h-64 flex items-center justify-center rounded-lg border border-gray-300"
+          >
+            <span class="text-gray-500">🎥 Course Video (Mux Placeholder)</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</MainLayout>
