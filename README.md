@@ -58,18 +58,24 @@ npm install
 
 ### 2. Environment Variables
 
-PUBLIC_CLERK_FRONTEND_API=<your_clerk_frontend_api>
+PUBLIC_CLERK_PUBLISHABLE_KEY=<your_clerk_publishable_key>
+CLERK_SECRET_KEY==<your_clerk_secret_key>
+
 APPWRITE_ENDPOINT=<your_appwrite_endpoint>
 APPWRITE_PROJECT_ID=<your_appwrite_project_id>
 APPWRITE_API_KEY=<your_appwrite_api_key>
+
 STRIPE_PUBLIC_KEY=<your_stripe_public_key>
 STRIPE_SECRET_KEY=<your_stripe_secret_key>
 STRIPE_WEBHOOK_SECRET=<your_webhook_secret>
+
 MUX_TOKEN_ID=<your_mux_token_id>
 MUX_TOKEN_SECRET=<your_mux_token_secret>
-COURSE_ID=<your_single_course_id>
+
 INSTRUCTOR_EMAIL=<your_email@example.com>
-PUBLIC_BASE_URL=http://localhost:3000
+
+PUBLIC_URL=http://localhost:3000
+
 THEME_COLOR_PRIMARY=#6b5b95
 THEME_COLOR_SECONDARY=#feb236
 
