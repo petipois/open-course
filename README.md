@@ -76,25 +76,20 @@ INSTRUCTOR_EMAIL=<your_email@example.com>
 
 PUBLIC_URL=http://localhost:3000
 
-THEME_COLOR_PRIMARY=#6b5b95
-THEME_COLOR_SECONDARY=#feb236
-
 INSTRUCTOR_EMAIL auto-redirects the instructor to the dashboard after login.
 
 ### Appwrite Collections
 
-Courses: title, description, thumbnail_url, price
-Lessons: course_id, title, text_content, playback_id, order
+Courses: title, description, price
+Lessons: course_id, title, description, playback_id, order
 Students: email, paid, current_lesson_id, progress (array), transaction_id
-Add yourself as a student with paid: true and role: instructor to enable dashboard access.
+
 ## API Routes
 Instructor / Course Management
-/api/course/create – create a course (instructor only)
-/api/course/update – update course details
-/api/course/get – fetch course info (public)
-/api/lesson/create – add lesson to course
-/api/lesson/update – update lesson
-/api/lesson/get – list lessons for a course
+/api/course/create-course – create a course (instructor only)
+/api/course/add-lesson – add lesson to course
+/api/course/mark-complete – Mark Lesson as complete (public)
+/api/lesson/update lesson –  update lesson
 
 ###Stripe Payment
 
@@ -132,34 +127,38 @@ Instructor / Course Management
                                           |
                                           v
                                 +---------------------+
-                                | Remaining lessons   |
-                                | sequentially        |
-                                | unlocked as         |
-                                | completed           |
+                                | all lessons      |
+                                |                  |
+                                | unlocked         |
+                                |                   |
                                 +---------------------+
 ## Frontend Structure
 /src/pages
   /student.astro        # Student view
-  /instructor.astro     # Instructor dashboard
-  /sign-in.astro        # Clerk login
+  /instructor/
+      [id].astro      # update lesson by id
+      lessons.astro   # all lessons info
+      index.astro     # Instructor dashboard
+  /login.astro        # Clerk login
+  /index.astro          # home page
+  /course.astro       #course page
 /src/pages/api
-  /course/create.ts
-  /course/update.ts
-  /lesson/create.ts
-  /lesson/update.ts
-  /lesson/get.ts
+  
   /stripe/checkout.ts
   /stripe/webhook.ts
 /src/components
-  ClerkProvider.astro
-  LessonCard.astro
-  ProgressBar.astro
+  Hero.astro
+  HowItWorks.astro
+  Navbar.astro
+  Footer.astro
+  LessonList.astro      # sidebar with all the lessons
+  LessonPlayer          # component that load the lesson with mux player
+  starwind              # starwind ui components
 /src/lib
   appwrite.ts           # Appwrite helpers
-  mux.ts                # Mux helpers
   stripe.ts             # Stripe helpers
 
-### Theme Customization
+## More frontend customization
 
-THEME_COLOR_PRIMARY=#6b5b95
-THEME_COLOR_SECONDARY=#feb236
+Change the index.astro to fit your style.
+Hero, HowItWorks, Features are the components used, customized them or just rewrite the index.astro file
