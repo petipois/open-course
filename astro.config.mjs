@@ -4,8 +4,6 @@ import { defineConfig } from 'astro/config';
 
 import icon from "astro-icon";
 import clerk from "@clerk/astro";
-//import netlify from "@astrojs/netlify";
-
 import node from "@astrojs/node";
 
 // https://astro.build/config

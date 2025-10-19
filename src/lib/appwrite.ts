@@ -133,7 +133,7 @@ export async function markLessonComplete(userID: string, courseID: string, lesso
 
 export async function getLessonProgress(userID: string, lessonID: string) {
     try {
-        const result= await tables.listRows({
+        const result = await tables.listRows({
             databaseId: COURSE_DATABASE,
             tableId: "progress",
             queries: [
@@ -163,4 +163,28 @@ export async function getProgress(userId: string) {
         console.error("Error fetching progress:", error);
         return [];
     }
+}
+
+export async function updateLesson(lessonID: string, data: any) {
+  try {
+    // Fetch the row first to ensure it exists
+    const row = await tables.getRow(COURSE_DATABASE, "lessons", lessonID);
+
+    if (!row) {
+      throw new Error(`Row ${lessonID} not found`);
+    }
+
+    // Update
+    const result = await tables.updateRow({
+      databaseId: COURSE_DATABASE,
+      tableId: "lessons",
+      rowId: lessonID,
+      data
+    });
+
+    return result;
+  } catch (error) {
+    console.error(`Error updating lesson ${lessonID}:`, error);
+    return null;
+  }
 }

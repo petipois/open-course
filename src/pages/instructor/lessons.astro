@@ -1,11 +1,13 @@
 ---
 import MainLayout from "@/layouts/MainLayout.astro";
-import Mux from "@mux/mux-node";
-import { MuxUploader } from "@mux/mux-uploader-astro";
 import { Input } from "@/components/starwind/input";
 import { Button } from "@/components/starwind/button";
+import { MuxUploader } from "@mux/mux-uploader-astro";
 import { getLessons } from "@/lib/appwrite";
 import { showCourseDetails, courseExists, instructorCheck } from "@/lib/helper";
+import { Icon } from "astro-icon/components";
+import Mux from "@mux/mux-node";
+import Badge from "@/components/starwind/badge";
 
 // 🔒 Verify user
 const user = await Astro.locals.currentUser();
@@ -20,194 +22,197 @@ if (isInstructor && !course) throw Astro.redirect("/instructor");
 
 // 🎬 Initialize Mux upload
 const mux = new Mux({
-    tokenId: import.meta.env.MUX_TOKEN_ID,
-    tokenSecret: import.meta.env.MUX_TOKEN_SECRET,
+  tokenId: import.meta.env.MUX_TOKEN_ID,
+  tokenSecret: import.meta.env.MUX_TOKEN_SECRET,
 });
 
 const upload = await mux.video.uploads.create({
-    new_asset_settings: {
-        playback_policy: ["public"],
-        video_quality: "basic",
-    },
-    cors_origin: "*",
+  new_asset_settings: {
+    playback_policy: ["public"],
+    video_quality: "basic",
+  },
+  cors_origin: "*",
 });
 
 // 📘 Course and lessons
 const theCourse = await showCourseDetails();
-const allLessons = await getLessons(theCourse?.$id);
+const allLessons = (await getLessons(theCourse?.$id)) || [];
+const editIcon = "mdi:edit";
+const addIcon = "mdi:add";
 ---
 
 <MainLayout>
-    <section class="min-h-screen bg-gray-50 py-12">
-        <div
-            class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8 space-y-8"
+  <section class="min-h-screen bg-gray-50 py-12">
+    <div
+      class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8 space-y-10"
+    >
+      <!-- Header -->
+      <header class="text-center space-y-2">
+        <h1 class="text-4xl font-bold text-gray-900">{theCourse?.title}</h1>
+        <p class="text-gray-700 text-lg">{theCourse?.description}</p>
+      </header>
+
+      <!-- Lessons List -->
+      <section>
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">
+          Lessons in Database
+        </h2>
+
+        {
+          allLessons.length > 0 ? (
+            <ul class="divide-y divide-gray-200">
+              {allLessons.map((lesson: any) => (
+                <li class="py-4 flex flex-col md:flex-row md:justify-between md:items-center">
+                  <div>
+                    <Badge>{lesson.order}</Badge>
+                    <p class="font-semibold text-gray-800">{lesson.title}</p>
+                    <p class="text-gray-600 text-sm">{lesson.description}</p>
+                  </div>
+                  <a
+                    href={`/instructor/${lesson.$id}`}
+                    class="mt-2 md:mt-0 text-blue-600 hover:underline"
+                  >
+                    <Icon name={editIcon} /> Edit
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p class="text-gray-500 italic">
+              No lessons yet. Add your first one below!
+            </p>
+          )
+        }
+      </section>
+
+      <!-- Add Lesson Button -->
+      <div class="flex justify-end">
+        <Button id="toggleLessonForm" variant="primary"
+          ><Icon name={addIcon} /> Add Lesson</Button
         >
-            <!-- 🧭 Header -->
-            <header class="text-center space-y-2">
-                <h1 class="text-4xl font-bold text-gray-900">
-                    {theCourse?.title}
-                </h1>
-                <p class="text-gray-700 text-lg">{theCourse?.description}</p>
-            </header>
-            <h2 class="text-2xl font-bold text-gray-900">Lessons in Database</h2>
-            <!-- 📚 Lesson List -->
-            {
-                allLessons!?.length > 0 ? (
-                    <ul class="divide-y divide-gray-200">
-                        {allLessons?.map((lesson: any) => (
-                            <li class="py-3">
-                                <p class="font-semibold text-gray-800">
-                                    {lesson.title}
-                                </p>
-                                <p class="text-gray-600 text-sm">
-                                    {lesson.description}
-                                </p>
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p class="text-gray-500 italic">
-                        No lessons yet. Add your first one below!
-                    </p>
-                )
-            }
+      </div>
 
-            <!-- ➕ Add Lesson Button -->
-            <div class="flex justify-end">
-                <Button id="toggleLessonForm" variant="primary"
-                    >+ Add Lesson</Button
-                >
-            </div>
+      <!-- Add Lesson Form -->
+      <form
+        id="lessonForm"
+        class="hidden space-y-6 border-t border-gray-200 pt-6"
+        action="/api/add-lesson"
+        method="POST"
+      >
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Add a Lesson</h2>
 
-            <!-- ✏️ Add Lesson Form -->
-            <form
-                id="lessonForm"
-                class="hidden space-y-6 border-t border-gray-200 pt-6"
-                action="/api/add-lesson"
-                method="POST"
+        <input type="hidden" name="course_id" value={theCourse?.$id} />
+        <input
+          type="hidden"
+          id="video_asset_id"
+          name="video_asset_id"
+          value={upload.id}
+        />
+
+        <div class="space-y-4">
+          <div>
+            <label class="block font-medium text-gray-700 mb-1"
+              >Lesson Title</label
             >
-                <h2 class="text-2xl font-semibold text-gray-800 mb-4">
-                    Add a Lesson
-                </h2>
+            <Input
+              name="lesson_title"
+              placeholder="Lesson 1: Introduction"
+              required
+            />
+          </div>
 
-                <input type="hidden" name="course_id" value={theCourse?.$id} />
-                <input
-                    type="hidden"
-                    id="video_asset_id"
-                    name="video_asset_id"
-                    value={upload.id}
-                />
+          <div>
+            <label class="block font-medium text-gray-700 mb-1"
+              >Lesson Description</label
+            >
+            <textarea
+              name="lesson_description"
+              rows="2"
+              class="w-full border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Brief summary..."
+              required></textarea>
+          </div>
 
-                <div class="space-y-4">
-                    <div>
-                        <label class="block font-medium text-gray-700 mb-1"
-                            >Lesson Title</label
-                        >
-                        <Input
-                            name="lesson_title"
-                            placeholder="Lesson 1: Introduction"
-                            required
-                        />
-                    </div>
+          <div>
+            <label class="block font-medium text-gray-700 mb-1"
+              >Lesson Number</label
+            >
+            <Input
+              name="lesson_number"
+              type="number"
+              placeholder="1"
+              min="1"
+              required
+            />
+          </div>
 
-                    <div>
-                        <label class="block font-medium text-gray-700 mb-1"
-                            >Lesson Description</label
-                        >
-                        <textarea
-                            name="lesson_description"
-                            rows="2"
-                            class="w-full border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500"
-                            placeholder="Brief summary..."
-                            required></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block font-medium text-gray-700 mb-1"
-                            >Lesson Number</label
-                        >
-                        <Input
-                            name="lesson_number"
-                            type="number"
-                            placeholder="1"
-                            min="1"
-                            required
-                        />
-                    </div>
-
-                    <div>
-                        <label class="block font-medium text-gray-700 mb-1"
-                            >Lesson Video</label
-                        >
-                        <MuxUploader
-                            id="mux-uploader"
-                            endpoint={upload.url}
-                            pausable
-                            maxFileSize={50_000}
-                            class="rounded-lg border border-gray-300 p-2 w-full"
-                        />
-                        <p id="uploadStatus" class="text-sm text-gray-500 mt-1">
-                            No file uploaded yet.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="flex justify-between pt-4">
-                    <Button id="cancelLessonForm" variant="ghost" type="button"
-                        >Cancel</Button
-                    >
-                    <Button
-                        id="saveLessonBtn"
-                        type="submit"
-                        variant="success"
-                        disabled>✅ Save Lesson</Button
-                    >
-                </div>
-            </form>
+          <div>
+            <label class="block font-medium text-gray-700 mb-1"
+              >Lesson Video</label
+            >
+            <MuxUploader
+              id="mux-uploader"
+              endpoint={upload.url}
+              pausable
+              maxFileSize={50_000}
+              class="rounded-lg border border-gray-300 p-2 w-full"
+            />
+            <p id="uploadStatus" class="text-sm text-gray-500 mt-1">
+              No file uploaded yet.
+            </p>
+          </div>
         </div>
-    </section>
 
-    <!-- 🔘 Toggle and Upload Logic -->
-    <script is:inline>
-        const toggleButton = document.getElementById("toggleLessonForm");
-        const lessonForm = document.getElementById("lessonForm");
-        const cancelButton = document.getElementById("cancelLessonForm");
-        const saveBtn = document.getElementById("saveLessonBtn");
-        const muxUploader = document.getElementById("mux-uploader");
-        const uploadStatus = document.getElementById("uploadStatus");
+        <div class="flex justify-between pt-4">
+          <Button id="cancelLessonForm" variant="ghost" type="button"
+            >Cancel</Button
+          >
+          <Button id="saveLessonBtn" type="submit" variant="success" disabled
+            >Save Lesson</Button
+          >
+        </div>
+      </form>
+    </div>
+  </section>
 
-        // Show/Hide form
-        toggleButton?.addEventListener("click", () => {
-            lessonForm.classList.toggle("hidden");
-            toggleButton.classList.toggle("hidden");
-        });
+  <!-- Script: Toggle & Mux Upload -->
+  <script is:inline>
+    const toggleButton = document.getElementById("toggleLessonForm");
+    const lessonForm = document.getElementById("lessonForm");
+    const cancelButton = document.getElementById("cancelLessonForm");
+    const saveBtn = document.getElementById("saveLessonBtn");
+    const muxUploader = document.getElementById("mux-uploader");
+    const uploadStatus = document.getElementById("uploadStatus");
 
-        cancelButton?.addEventListener("click", () => {
-            lessonForm.classList.add("hidden");
-            toggleButton.classList.remove("hidden");
-        });
+    // Show/Hide form
+    toggleButton?.addEventListener("click", () => {
+      lessonForm.classList.toggle("hidden");
+      toggleButton.classList.toggle("hidden");
+    });
 
-        // Disable "Save Lesson" until upload completes
-        saveBtn.disabled = true;
-        let uploadComplete = false;
+    cancelButton?.addEventListener("click", () => {
+      lessonForm.classList.add("hidden");
+      toggleButton.classList.remove("hidden");
+    });
 
-        muxUploader?.addEventListener("uploadstart", () => {
-            uploadStatus.textContent = "⏳ Uploading video...";
-            saveBtn.disabled = true;
-            saveBtn.textContent = "Uploading...";
-        });
+    // Disable "Save Lesson" until upload completes
+    saveBtn.disabled = true;
+    muxUploader?.addEventListener("uploadstart", () => {
+      uploadStatus.textContent = "Uploading video...";
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Uploading...";
+    });
 
-        muxUploader?.addEventListener("success", (event) => {
-            uploadStatus.textContent = "✅ Upload complete!";
-            uploadComplete = true;
-            saveBtn.disabled = false;
-            saveBtn.textContent = "✅ Save Lesson";
-        });
+    muxUploader?.addEventListener("success", () => {
+      uploadStatus.textContent = "✅ Upload complete!";
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Save Lesson";
+    });
 
-        muxUploader?.addEventListener("error", (event) => {
-            uploadStatus.textContent = "❌ Upload failed. Try again.";
-            saveBtn.disabled = true;
-            saveBtn.textContent = "Retry Upload";
-        });
-    </script>
+    muxUploader?.addEventListener("error", () => {
+      uploadStatus.textContent = "Upload failed. Try again.";
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Retry Upload";
+    });
+  </script>
 </MainLayout>
