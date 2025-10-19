@@ -4,7 +4,16 @@ import { Input } from "@/components/starwind/input";
 import { Button } from "@/components/starwind/button";
 import Mux from "@mux/mux-node";
 import { MuxUploader } from "@mux/mux-uploader-astro";
-
+const user = await Astro.locals.currentUser();
+const INSTRUCTOR_EMAIL = import.meta.env.INSTRUCTOR_EMAIL;
+if (!user) {
+  throw Astro.redirect("/login");
+} else {
+  const email = user.emailAddresses[0].emailAddress;
+  if (email != INSTRUCTOR_EMAIL) {
+    throw Astro.redirect("/course");
+  }
+}
 const mux = new Mux({
   tokenId: import.meta.env.MUX_TOKEN_ID,
   tokenSecret: import.meta.env.MUX_TOKEN_SECRET,
@@ -23,7 +32,7 @@ const upload = await mux.video.uploads.create({
   <div class="min-h-screen bg-gray-50 py-12">
     <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8">
       <h1 class="text-3xl font-bold text-gray-900 mb-6">
-        🎓 Instructor Dashboard
+        Instructor Dashboard
       </h1>
 
       <!-- Step Navigation -->
@@ -44,14 +53,14 @@ const upload = await mux.video.uploads.create({
       <form
         class="space-y-6"
         id="course-form"
-        onsubmit="event.preventDefault(); nextStep();"
+        onsubmit="event.preventDefault(); createCourse(); nextStep();"
       >
         <div>
           <label class="block text-gray-700 font-semibold mb-1"
             >Course Title</label
           >
           <Input
-            name="title"
+            name="course_title"
             placeholder="e.g. Introduction to Astro"
             required
           />
@@ -62,12 +71,11 @@ const upload = await mux.video.uploads.create({
             >Course Description</label
           >
           <textarea
-            name="description"
+            name="course_description"
             rows="4"
             class="w-full rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-500 p-2"
             placeholder="Write a short description..."
-            required
-          ></textarea>
+            required></textarea>
         </div>
 
         <div>
@@ -78,9 +86,7 @@ const upload = await mux.video.uploads.create({
         </div>
 
         <div class="flex justify-end">
-          <Button type="submit" variant="primary">
-            Next: Add Lessons →
-          </Button>
+          <Button type="submit" variant="primary"> Next: Add Lessons → </Button>
         </div>
       </form>
 
@@ -88,7 +94,7 @@ const upload = await mux.video.uploads.create({
       <form
         id="lesson-form"
         class="hidden space-y-6"
-        onsubmit="event.preventDefault(); alert('Course created successfully!');"
+        onsubmit="event.preventDefault();"
       >
         <div class="border-t border-gray-200 pt-6">
           <h2 class="text-2xl font-semibold text-gray-800 mb-4">
@@ -101,10 +107,7 @@ const upload = await mux.video.uploads.create({
               <label class="block font-medium text-gray-700 mb-1"
                 >Lesson Title</label
               >
-              <Input
-                name="lesson_title"
-                placeholder="Lesson 1: Introduction"
-              />
+              <Input name="lesson_title" placeholder="Lesson 1: Introduction" />
 
               <label class="block font-medium text-gray-700 mt-3 mb-1"
                 >Lesson Description</label
@@ -113,8 +116,7 @@ const upload = await mux.video.uploads.create({
                 name="lesson_description"
                 rows="2"
                 class="w-full border-gray-300 p-2 rounded-lg"
-                placeholder="Brief summary..."
-              ></textarea>
+                placeholder="Brief summary..."></textarea>
 
               <label class="block font-medium text-gray-700 mt-3 mb-1"
                 >Lesson Video</label
@@ -137,9 +139,7 @@ const upload = await mux.video.uploads.create({
               + Add another lesson
             </Button>
 
-            <Button type="submit" variant="success">
-              ✅ Publish Course
-            </Button>
+            <Button type="submit" variant="success"> ✅ Publish Course </Button>
           </div>
         </div>
       </form>
@@ -147,16 +147,32 @@ const upload = await mux.video.uploads.create({
       <!-- Hidden template for new lessons -->
       <template id="lesson-template">
         <div class="lesson-item bg-gray-50 p-4 rounded-lg border">
-          <label class="block font-medium text-gray-700 mb-1">Lesson Title</label>
-          <input type="text" class="w-full border-gray-300 p-2 rounded-lg" placeholder="Lesson title">
+          <label class="block font-medium text-gray-700 mb-1"
+            >Lesson Title</label
+          >
+          <input
+            type="text"
+            class="w-full border-gray-300 p-2 rounded-lg"
+            placeholder="Lesson title"
+          />
 
-          <label class="block font-medium text-gray-700 mt-3 mb-1">Lesson Description</label>
-          <textarea rows="2" class="w-full border-gray-300 p-2 rounded-lg" placeholder="Brief summary..."></textarea>
+          <label class="block font-medium text-gray-700 mt-3 mb-1"
+            >Lesson Description</label
+          >
+          <textarea
+            rows="2"
+            name="lesson_description"
+            class="w-full border-gray-300 p-2 rounded-lg"
+            placeholder="Brief summary..."></textarea>
 
-          <label class="block font-medium text-gray-700 mt-3 mb-1">Lesson Video</label>
+          <label class="block font-medium text-gray-700 mt-3 mb-1"
+            >Lesson Video</label
+          >
           <div class="relative opacity-50 pointer-events-none">
             <MuxUploader endpoint={upload.url} />
-            <div class="absolute inset-0 bg-white/30 backdrop-blur-[1px] flex items-center justify-center text-gray-600 font-medium rounded-md">
+            <div
+              class="absolute inset-0 bg-white/30 backdrop-blur-[1px] flex items-center justify-center text-gray-600 font-medium rounded-md"
+            >
               🔒 Uploader disabled
             </div>
           </div>
@@ -177,8 +193,29 @@ const upload = await mux.video.uploads.create({
       lessonForm.classList.remove("hidden");
     }
 
+    function createCourse() {
+      const theCourse = {
+        title: courseForm.course_title.value,
+        description: courseForm.course_description.value,
+        thumbnail: courseForm.thumbnail.value,
+      };
+
+      
+    }
+
+    function addLesson() {
+      const lessons = [];
+      const lesson = {
+        title: lessonForm.lesson_title.value,
+        description: lesson_description.value,
+        playbackID: lessonForm.playbackID.value,
+      };
+      lessons.push(lesson);
+      console.log(lessons);
+    }
     addLessonBtn.addEventListener("click", () => {
       const clone = lessonTemplate.content.cloneNode(true);
+      addLesson();
       lessons.appendChild(clone);
     });
   </script>

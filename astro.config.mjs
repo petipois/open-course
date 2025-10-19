@@ -3,12 +3,16 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from 'astro/config';
 
 import icon from "astro-icon";
+import node from "@astrojs/node";
+import clerk from "@clerk/astro";
+import netlify from "@astrojs/netlify";
 
 // https://astro.build/config
 export default defineConfig({
   vite: {
       plugins: [tailwindcss()],
-	},
-
-  integrations: [icon()],
+    },
+output:"server",
+  integrations: [icon(), clerk()],
+  adapter: netlify(),
 });
