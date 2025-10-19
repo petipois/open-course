@@ -1,0 +1,98 @@
+---
+import { MuxPlayer } from "@mux/mux-player-astro";
+import Button from "@/components/starwind/button";
+
+const { lessons, user, courseID } = Astro.props;
+---
+
+<div class="max-w-3xl mx-auto">
+  <h1 id="lessonTitle" class="text-4xl font-bold text-gray-900 mb-3"></h1>
+  <p id="lessonDescription" class="text-gray-600 mb-6"></p>
+
+  <div class="bg-white shadow-sm rounded-xl p-5">
+    <div id="lessonVideoContainer" class="rounded-xl border border-gray-200 overflow-hidden">
+      <!-- Initial MuxPlayer fallback will be replaced by JS -->
+      <MuxPlayer
+        id="lessonPlayer"
+        playbackId={lessons[0]?.videoID || ""}
+        streamType="on-demand"
+        class="w-full h-[400px]"
+      />
+    </div>
+
+    <form id="markCompleteForm" action="/api/mark-complete" method="POST" class="mt-4 inline-block">
+      <input type="hidden" name="userID" value={user.id} />
+      <input type="hidden" name="courseID" value={courseID} />
+      <input type="hidden" name="lessonID" id="lessonIDInput" value={lessons[0]?.$id} />
+      <Button id="markCompleteBtn" type="submit">Mark as Complete</Button>
+    </form>
+
+    <Button id="nextLessonBtn" class="mt-4 w-full">Next Lesson</Button>
+  </div>
+</div>
+
+
+<script is:inline>
+  const lessonEls = Array.from(document.querySelectorAll("#lessonList li"));
+  const titleEl = document.getElementById("lessonTitle");
+  const descEl = document.getElementById("lessonDescription");
+  const container = document.getElementById("lessonVideoContainer");
+  const lessonIDInput = document.getElementById("lessonIDInput");
+  const markBtn = document.getElementById("markCompleteBtn");
+  const nextBtn = document.getElementById("nextLessonBtn");
+
+  let currentIndex = 0;
+
+  function loadLesson(index) {
+    const el = lessonEls[index];
+    const { title, description, videoId, completed } = el.dataset;
+
+    titleEl.textContent = title;
+    descEl.textContent = description;
+    lessonIDInput.value = el.dataset.lessonId;
+
+    // Replace video player
+    container.innerHTML = '';
+    if (videoId) {
+      const player = document.createElement('mux-player');
+      player.setAttribute('playback-id', videoId);
+      player.setAttribute('stream-type', 'on-demand');
+      player.className = "w-full h-[400px] rounded-lg";
+      container.appendChild(player);
+    } else {
+      container.innerHTML = '<p class="text-gray-500 py-16 text-center">🎬 No video available.</p>';
+    }
+
+    // Update mark complete button
+    if (completed === "true") {
+      markBtn.textContent = "Completed ✅";
+      markBtn.disabled = true;
+    } else {
+      markBtn.textContent = "Mark as Complete";
+      markBtn.disabled = false;
+    }
+
+    // Highlight selected lesson
+    lessonEls.forEach(l => l.classList.remove("bg-blue-50", "border-l-4", "border-blue-500"));
+    el.classList.add("bg-blue-50", "border-l-4", "border-blue-500");
+
+    currentIndex = index;
+    nextBtn.textContent = currentIndex === lessonEls.length - 1 ? "Complete Course" : "Next Lesson";
+  }
+
+  lessonEls.forEach((el, i) => el.addEventListener("click", () => loadLesson(i)));
+
+  // Next lesson / complete course
+  nextBtn.addEventListener("click", () => {
+    if (currentIndex < lessonEls.length - 1) {
+      loadLesson(currentIndex + 1);
+    } else {
+      window.location.href = "/";
+    }
+  });
+
+
+
+  // Load the first lesson initially
+  loadLesson(0);
+</script>

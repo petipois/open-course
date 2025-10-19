@@ -108,3 +108,59 @@ export async function addLesson(data: any) {
         console.log(error)
     }
 }
+
+export async function markLessonComplete(userID: string, courseID: string, lessonID: string) {
+    try {
+        const progress = await tables.createRow({
+            databaseId: COURSE_DATABASE,
+            tableId: "progress",
+            rowId: ID.unique(),
+            data: {
+                userID: userID,
+                courseID: courseID,
+                lessonID: lessonID,
+                completed: true,
+                completedAt: new Date().toISOString(),
+                progressPercentage: 100
+            },
+        });
+        return progress;
+    } catch (err) {
+        console.error("Error marking complete:", err);
+        throw err;
+    }
+}
+
+export async function getLessonProgress(userID: string, lessonID: string) {
+    try {
+        const result= await tables.listRows({
+            databaseId: COURSE_DATABASE,
+            tableId: "progress",
+            queries: [
+                Query.equal("userID", userID),
+                Query.equal("lessonID", lessonID),
+            ],
+        });
+        return result.rows;
+    } catch (err) {
+        console.error("Error getting progress:", err);
+    }
+}
+
+export async function getProgress(userId: string) {
+    try {
+        const result = await tables.listRows({
+            databaseId: COURSE_DATABASE,
+            tableId: "progress",
+            queries: [
+                Query.equal("userID", userId),
+            ],
+        });
+
+        // Return array of lesson IDs
+        return result.rows.map(row => row.lessonID);
+    } catch (error) {
+        console.error("Error fetching progress:", error);
+        return [];
+    }
+}

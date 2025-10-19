@@ -14,9 +14,9 @@ export const POST: APIRoute = async ({ request, url }) => {
             title: formData.get('lesson_title') as string,
             description: formData.get('lesson_description') as string,
             courseID: formData.get('course_id') as string,
-           order: isNaN(orderValue) ? 0 : orderValue
+            order: isNaN(orderValue) ? 0 : orderValue
         };
-        
+
         const video_asset_id = formData.get('video_asset_id') as string;
 
         if (!video_asset_id) {
@@ -64,15 +64,13 @@ export const POST: APIRoute = async ({ request, url }) => {
         }
         const lesson = await addLesson({
             ...lessonData,
-            videoID: playbackId,
-            duration: duration,
+            videoID: playbackId
         })
-        console.log(lesson)
+       
+            const redirectUrl = new URL(`/instructor/lessons/`, url.origin);
 
-        // Construct absolute URL using the request's origin
-        const redirectUrl = new URL(`/instructor/lessons/`, url.origin);
+            return Response.redirect(redirectUrl.toString(), 303); //reload the lessons page
 
-        return Response.redirect(redirectUrl.toString(), 303); //reload the lessons page
 
     } catch (error: any) {
         console.error('Error:', error);
