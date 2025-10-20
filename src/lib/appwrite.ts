@@ -166,25 +166,52 @@ export async function getProgress(userId: string) {
 }
 
 export async function updateLesson(lessonID: string, data: any) {
-  try {
-    // Fetch the row first to ensure it exists
-    const row = await tables.getRow(COURSE_DATABASE, "lessons", lessonID);
+    try {
+        // Fetch the row first to ensure it exists
+        const row = await tables.getRow(COURSE_DATABASE, "lessons", lessonID);
 
-    if (!row) {
-      throw new Error(`Row ${lessonID} not found`);
+        if (!row) {
+            throw new Error(`Row ${lessonID} not found`);
+        }
+
+        // Update
+        const result = await tables.updateRow({
+            databaseId: COURSE_DATABASE,
+            tableId: "lessons",
+            rowId: lessonID,
+            data
+        });
+
+        return result;
+    } catch (error) {
+        console.error(`Error updating lesson ${lessonID}:`, error);
+        return null;
     }
+}
+export async function studentExists(userID: string) {
+    // Fetch all rows
+    const rows = await tables.listRows(COURSE_DATABASE, "students");
 
-    // Update
-    const result = await tables.updateRow({
-      databaseId: COURSE_DATABASE,
-      tableId: "lessons",
-      rowId: lessonID,
-      data
-    });
+    // Try to find an existing student by userID
+    let existing = rows.rows.find((row: any) => row.userID === userID);
+    if (existing)
+        return true;
+    else
+        return false;
+}
+export async function addStudent(userID: string, data: any) {
+    try {
+        // Create new student row
+        const result = await tables.createRow({
+            databaseId: COURSE_DATABASE,
+            tableId: "students",
+            rowId: ID.unique(),
+            data:data
+        });
 
-    return result;
-  } catch (error) {
-    console.error(`Error updating lesson ${lessonID}:`, error);
-    return null;
-  }
+        return result;
+    } catch (error) {
+        console.error(`Error adding student ${userID}:`, error);
+        return null;
+    }
 }

@@ -2,14 +2,33 @@
 import MainLayout from "@/layouts/MainLayout.astro";
 import LessonList from "@/components/LessonList.astro";
 import LessonPlayer from "@/components/LessonPlayer.astro";
-import { getLessons, getLessonProgress } from "@/lib/appwrite";
-import { showCourseDetails } from "@/lib/helper";
+import {
+  getLessons,
+  getLessonProgress,
+  studentExists,
+  addStudent,
+} from "@/lib/appwrite";
+import { showCourseDetails, studentIsInDB } from "@/lib/helper";
 
 const user = await Astro.locals.currentUser();
 if (!user) throw Astro.redirect("/login");
 
 const course = await showCourseDetails();
-const lessons = await getLessons(course?.$id) || [];
+const lessons = (await getLessons(course?.$id)) || [];
+
+//is the user adlready in the db;
+const data = await studentIsInDB(user.id);
+ console.log(data);
+if(!data)
+{
+  const student = await addStudent(user?.id,{
+    email: user?.emailAddresses[0].emailAddress,
+    courses: [course?.$id]
+  })
+  console.log(student)
+}else{
+  console.log(data);
+}
 
 // Track progress for each lesson
 let lessonProgress: { [key: string]: boolean } = {};
@@ -18,6 +37,7 @@ for (const lesson of lessons) {
   lessonProgress[lesson.$id] = Boolean(progress && progress.length > 0);
 }
 ---
+
 <MainLayout>
   <div class="flex min-h-screen bg-gray-50">
     <LessonList lessons={lessons} lessonProgress={lessonProgress} />
