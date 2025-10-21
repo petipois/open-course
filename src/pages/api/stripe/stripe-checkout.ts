@@ -47,7 +47,7 @@ export const POST: APIRoute = async ({ request }) => {
       ],
       customer_email: customerEmail,
       metadata: { studentId, courseId: course.$id },
-      success_url: `${import.meta.env.PUBLIC_BASE_URL}`,
+      success_url: `${import.meta.env.PUBLIC_BASE_URL}/course`,
       cancel_url: `${import.meta.env.PUBLIC_BASE_URL}`,
     });
 
