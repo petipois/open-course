@@ -35,12 +35,12 @@ export const POST: APIRoute = async ({ request }) => {
       line_items: [
         {
           price_data: {
-            currency: "usd", // or course.currency if stored
+            currency: "eur", // or course.currency if stored
             product_data: {
-              name: course.name,
+              name: course.title,
               description: course.description,
             },
-            unit_amount: course.price, // in cents
+            unit_amount: course.cost, // in cents
           },
           quantity: 1,
         },
@@ -51,11 +51,12 @@ export const POST: APIRoute = async ({ request }) => {
       cancel_url: `${import.meta.env.PUBLIC_BASE_URL}/`,
     });
 
-    return new Response(JSON.stringify({ url: session.url }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-
+     if (!session.url) {
+         console.error("No session URL returned from Stripe:", session);
+         return new Response(JSON.stringify({ error: "No Checkout URL returned" }), { status: 500 });
+       }
+   
+       return Response.redirect(session.url);
   } catch (err: any) {
     console.error(err);
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
