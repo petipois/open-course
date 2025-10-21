@@ -70,12 +70,12 @@ if (!user) {
           >
           <Input name="course_price" placeholder="e.g. 999 (9.99)" required />
         </div>
-        <!--  <div>
+         <div>
           <label class="block text-gray-700 font-semibold mb-1"
             >Thumbnail Image</label
           >
-          <Input type="file" name="thumbnail" accept="image/*" />
-        </div>-->
+          <Input type="file" id="image" name="thumbnail" accept="image/*" />
+        </div>
         <input type="hidden" value={user.id} name="creator_id" />
         <div class="flex justify-end">
           <Button type="submit" variant="primary"> Next: Add Lessons → </Button>
@@ -84,3 +84,30 @@ if (!user) {
     </div>
   </div>
 </MainLayout>
+<script is:inline>
+  const imageInput = document.getElementById("image");
+  const form = document.querySelector("form");
+
+  imageInput.addEventListener("change", async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (data.url) {
+      // Create a hidden field with the URL for the form submission
+      let hidden = document.createElement("input");
+      hidden.type = "hidden";
+      hidden.name = "thumbnail_url";
+      hidden.value = data.url;
+      form.appendChild(hidden);
+    }
+  });
+</script>

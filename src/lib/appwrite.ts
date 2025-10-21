@@ -76,7 +76,7 @@ export async function getLessonbyID(lessonID: any) {
         return null;
     }
 }
-export async function uploadCourseImage(file: File): Promise<string> {
+export async function uploadCourseImage(file: File) {
     try {
         // 1️⃣ Upload the file to Appwrite storage
         const uploaded = await storage.createFile(
@@ -94,7 +94,21 @@ export async function uploadCourseImage(file: File): Promise<string> {
         throw err;
     }
 }
+export async function deleteLesson(lessonID: string) {
+    try {
+        const result = await tables.deleteRow({
+            databaseId: COURSE_DATABASE,
+            tableId: "lessons",
+            rowId: lessonID
+        });
 
+        return result; // return all the lessons related to the course
+
+    } catch (error) {
+        console.error("Error deleting lesson:", error);
+        return null;
+    }
+}
 export async function addLesson(data: any) {
     try {
         const lesson = tables.createRow({
@@ -206,7 +220,7 @@ export async function addStudent(userID: string, data: any) {
             databaseId: COURSE_DATABASE,
             tableId: "students",
             rowId: ID.unique(),
-            data:data
+            data: data
         });
 
         return result;

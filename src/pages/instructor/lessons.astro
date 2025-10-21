@@ -8,6 +8,7 @@ import { showCourseDetails, courseExists, instructorCheck } from "@/lib/helper";
 import { Icon } from "astro-icon/components";
 import Mux from "@mux/mux-node";
 import Badge from "@/components/starwind/badge";
+import { Image } from "astro:assets";
 
 // 🔒 Verify user
 const user = await Astro.locals.currentUser();
@@ -36,7 +37,7 @@ const upload = await mux.video.uploads.create({
 
 // 📘 Course and lessons
 const theCourse = await showCourseDetails();
-const allLessons = (await getLessons(theCourse?.$id)) || [];
+const allLessons = await getLessons(theCourse?.$id);
 const editIcon = "mdi:edit";
 const addIcon = "mdi:add";
 ---
@@ -50,6 +51,7 @@ const addIcon = "mdi:add";
       <header class="text-center space-y-2">
         <h1 class="text-4xl font-bold text-gray-900">{theCourse?.title}</h1>
         <p class="text-gray-700 text-lg">{theCourse?.description}</p>
+        <img src={theCourse?.thumbnail} alt={theCourse?.title}/>
       </header>
 
       <!-- Lessons List -->
@@ -59,7 +61,7 @@ const addIcon = "mdi:add";
         </h2>
 
         {
-          allLessons.length > 0 ? (
+          (allLessons && allLessons.length > 0) ? (
             <ul class="divide-y divide-gray-200">
               {allLessons.map((lesson: any) => (
                 <li class="py-4 flex flex-col md:flex-row md:justify-between md:items-center">

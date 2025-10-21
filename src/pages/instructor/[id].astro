@@ -21,68 +21,110 @@ if (isInstructor && !course) throw Astro.redirect("/instructor");
 
 // 📘 Course and lessons
 const theCourse = await showCourseDetails();
-const allLessons = (await getLessons(theCourse?.$id)) || [];
+const allLessons = await getLessons(theCourse?.$id);
 
-// Find current lesson
-const currentLessonIndex = allLessons.findIndex((l) => l.$id === lesson);
-const currentLesson = allLessons[currentLessonIndex] || allLessons[0];
+let currentLesson = null;
+if (allLessons && lesson) {
+  currentLesson = allLessons.find((l) => l.$id === lesson) || null;
+}
 ---
-
 <MainLayout>
   <section class="min-h-screen bg-gray-50 py-12">
     <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8 space-y-8">
       <!-- 🧭 Header -->
       <header class="text-center space-y-2">
-        <h1 class="text-4xl font-bold text-gray-900">
-          {theCourse?.title}
-        </h1>
+        <h1 class="text-4xl font-bold text-gray-900">{theCourse?.title}</h1>
         <p class="text-gray-700 text-lg">{theCourse?.description}</p>
       </header>
-      <h2 class="text-2xl font-bold text-gray-900">
-        Edit Lesson: {currentLesson.order}
-      </h2>
-      <div class="max-w-4xl mx-auto py-10">
-        <form
-          id="lessonForm"
-          class="space-y-6 border-t border-gray-200 pt-6"
-          action="/api/update-lesson"
-          method="POST"
-        >
-          <div class="space-y-4">
-            <div>
-              <label class="block font-medium text-gray-700 mb-1"
-                >Lesson Title</label
-              >
-              <Input name="lesson_title" required value={currentLesson.title} />
-            </div>
 
-            <div>
-              <label class="block font-medium text-gray-700 mb-1"
-                >Lesson Description</label
-              >
-              <textarea
-                name="lesson_description"
-                rows="2"
-                class="w-full border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500"
-                required>{currentLesson.description}</textarea
-              >
-            </div>
- <div>
-            <label class="block font-medium text-gray-700 mb-1">Lesson Number</label>
-            <Input name="lesson_number" type="number"value={currentLesson.order} min="1" required />
-          </div>
+      {
+        currentLesson ? (
+          <>
+            <h2 class="text-2xl font-bold text-gray-900">
+              Edit Lesson: {currentLesson.order}
+            </h2>
 
-           <input type="hidden" name="lessonID" value={currentLesson.$id}/>
-          </div>
-          <!-- update Lesson Button -->
-          <div class="flex justify-end">
-            <Button variant="primary" type="submit"}>Update Lesson</Button>
-          </div>
-        </form>
-        <div class="flex justify-between gap-4">
-          <Button href="/instructor/lessons"> Back to Lessons </Button>
-        </div>
-      </div>
+            <div class="max-w-4xl mx-auto py-10 space-y-8">
+              <!-- Update Lesson Form -->
+              <form
+                id="lessonForm"
+                class="space-y-6 border-t border-gray-200 pt-6"
+                action="/api/update-lesson"
+                method="POST"
+              >
+                <div class="space-y-4">
+                  <div>
+                    <label class="block font-medium text-gray-700 mb-1">
+                      Lesson Title
+                    </label>
+                    <Input
+                      name="lesson_title"
+                      required
+                      value={currentLesson.title}
+                    />
+                  </div>
+
+                  <div>
+                    <label class="block font-medium text-gray-700 mb-1">
+                      Lesson Description
+                    </label>
+                    <textarea
+                      name="lesson_description"
+                      rows="2"
+                      class="w-full border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      required
+                    >{currentLesson.description}</textarea>
+                  </div>
+
+                  <div>
+                    <label class="block font-medium text-gray-700 mb-1">
+                      Lesson Number
+                    </label>
+                    <Input
+                      name="lesson_number"
+                      type="number"
+                      value={currentLesson.order}
+                      min="1"
+                      required
+                    />
+                  </div>
+
+                  <input
+                    type="hidden"
+                    name="lessonID"
+                    value={currentLesson.$id}
+                  />
+                </div>
+
+                <!-- Update Button -->
+                <div class="flex justify-end">
+                  <Button variant="primary" type="submit">Update Lesson</Button>
+                </div>
+              </form>
+
+              <!-- Delete Form -->
+              <form action="/api/delete-lesson" method="POST">
+                <div class="flex justify-end">
+                  <input
+                    type="hidden"
+                    name="lessonID"
+                    value={currentLesson.$id}
+                  />
+                  <Button variant="error" type="submit">Delete Lesson</Button>
+                </div>
+              </form>
+
+              <div class="flex justify-between gap-4">
+                <Button href="/instructor/lessons">Back to Lessons</Button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <p class="text-center text-gray-500 italic">
+            Lesson not found or has been deleted.
+          </p>
+        )
+      }
     </div>
-  </section></MainLayout
->
+  </section>
+</MainLayout>
