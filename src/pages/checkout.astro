@@ -1,0 +1,54 @@
+---
+import MainLayout from "@/layouts/MainLayout.astro";
+import { studentHasPaid } from "@/lib/appwrite";
+import { showCourseDetails } from "@/lib/helper";
+import Button from "@/components/starwind/button";
+// 📘 Course and lessons
+const theCourse = await showCourseDetails();
+const user = await Astro.locals.currentUser();
+
+if (!user) {
+    throw Astro.redirect("/login"); // redirect if not logged in
+}
+
+// Fetch student payment status
+const studentPaid = await studentHasPaid(user?.id);
+if(studentPaid)
+{
+    return Astro.redirect("/course");
+}
+---
+
+<MainLayout>
+    <div class="max-w-xl mx-auto mt-16 p-6 bg-white rounded-2xl shadow-lg">
+        <h1 class="text-3xl font-bold mb-4 text-center">Course Checkout</h1>
+        <img src={theCourse?.thumbnail} />
+
+        {
+            (
+                <form
+                    method="POST"
+                    action="/api/stripe/stripe-checkout"
+                    class="flex flex-col gap-4"
+                >
+                    <input
+                        type="hidden"
+                        name="customerEmail"
+                        value={user?.emailAddresses[0].emailAddress}
+                        required
+                        class="mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+
+                    <input type="hidden" name="studentId" value={user?.id} />
+
+                    <Button
+                        type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md transition-all duration-200"
+                    >
+                        Enroll Now
+                    </Button>
+                </form>
+            )
+        }
+    </div>
+</MainLayout>

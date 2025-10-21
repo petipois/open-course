@@ -1,5 +1,5 @@
 
-import { getCourse, studentExists, addStudent } from "@/lib/appwrite";
+import { getCourse, studentExists, studentHasPaid } from "@/lib/appwrite";
 const INSTRUCTOR_EMAIL = import.meta.env.INSTRUCTOR_EMAIL;
 export function instructorCheck(email: string) {
     if (email == INSTRUCTOR_EMAIL) {
@@ -25,4 +25,8 @@ export async function showCourseDetails() {
 export async function studentIsInDB(userID: any) {
     const alreadyStudent = await studentExists(userID);
     return alreadyStudent;
+}
+export async function hasStudentPaid(userID: any) {
+    const result = await studentHasPaid(userID)
+    return result
 }

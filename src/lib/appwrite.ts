@@ -72,7 +72,7 @@ export async function getLessonbyID(lessonID: any) {
         return result; // return all the lessons related to the course
 
     } catch (error) {
-        console.error("Error fetching course:", error);
+        console.error("Error fetching lesson:", error);
         return null;
     }
 }
@@ -202,18 +202,16 @@ export async function updateLesson(lessonID: string, data: any) {
         return null;
     }
 }
-export async function studentExists(userID: string) {
-    // Fetch all rows
-    const rows = await tables.listRows(COURSE_DATABASE, "students");
-
-    // Try to find an existing student by userID
-    let existing = rows.rows.find((row: any) => row.userID === userID);
-    if (existing)
-        return true;
-    else
-        return false;
+export async function studentExists(userID: string): Promise<boolean> {
+    const result = await tables.listRows({
+        databaseId: COURSE_DATABASE,
+        tableId: "students",
+        queries: [Query.equal("userID", userID)]
+    });
+    return result.rows.length > 0; // returns true if student exists
 }
-export async function addStudent(userID: string, data: any) {
+
+export async function addStudent(data: any) {
     try {
         // Create new student row
         const result = await tables.createRow({
@@ -225,7 +223,40 @@ export async function addStudent(userID: string, data: any) {
 
         return result;
     } catch (error) {
-        console.error(`Error adding student ${userID}:`, error);
+        console.error(`Error adding student ${data}:`, error);
+        return null;
+    }
+}
+
+export async function studentHasPaid(userID: any) {
+    const student = await tables.listRows({
+        databaseId: COURSE_DATABASE,
+        tableId: "students",
+        queries: [Query.equal("userID", userID)]
+    });
+    return student.rows[0].transaction_id!=null;
+
+}
+export async function updateStudent(userID: string, data: any) {
+    try {
+        // Fetch the row first to ensure it exists
+        const row = await tables.getRow(COURSE_DATABASE, "students", userID);
+
+        if (!row) {
+            throw new Error(`Row ${userID} not found`);
+        }
+
+        // Update
+        const result = await tables.updateRow({
+            databaseId: COURSE_DATABASE,
+            tableId: "students",
+            rowId: userID,
+            data: data
+        });
+
+        return result;
+    } catch (error) {
+        console.error(`Error updating lesson ${userID}:`, error);
         return null;
     }
 }

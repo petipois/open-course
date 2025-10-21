@@ -2,13 +2,8 @@
 import MainLayout from "@/layouts/MainLayout.astro";
 import LessonList from "@/components/LessonList.astro";
 import LessonPlayer from "@/components/LessonPlayer.astro";
-import {
-  getLessons,
-  getLessonProgress,
-  studentExists,
-  addStudent,
-} from "@/lib/appwrite";
-import { showCourseDetails, studentIsInDB } from "@/lib/helper";
+import { getLessons, getLessonProgress, addStudent } from "@/lib/appwrite";
+import { showCourseDetails, studentIsInDB, hasStudentPaid } from "@/lib/helper";
 
 const user = await Astro.locals.currentUser();
 if (!user) throw Astro.redirect("/login");
@@ -16,18 +11,20 @@ if (!user) throw Astro.redirect("/login");
 const course = await showCourseDetails();
 const lessons = (await getLessons(course?.$id)) || [];
 
-//is the user adlready in the db;
+//is the user already in the db;
 const data = await studentIsInDB(user.id);
- console.log(data);
-if(!data)
-{
-  const student = await addStudent(user?.id,{
+if (!data) {
+  const student = await addStudent({
+    userID:user?.id, 
+    name: user?.username,
     email: user?.emailAddresses[0].emailAddress,
-    courses: [course?.$id]
-  })
-  console.log(student)
-}else{
-  console.log(data);
+    courses: [course?.$id],
+  });
+}
+const student = await hasStudentPaid(user.id);
+if(!student)
+{
+  return Astro.redirect("/checkout")
 }
 
 // Track progress for each lesson

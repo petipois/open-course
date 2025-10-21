@@ -1,21 +1,28 @@
 ---
 import "@/styles/starwind.css";
-const title ="OpenCourse";
+const title = "OpenCourse";
 import Footer from "@/components/Footer.astro";
 import Navbar from "@/components/Navbar.astro";
 ---
 
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>{title}</title>
-	</head>
-	<body>
-		<Navbar/>
-	<slot/>
-	<Footer />
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body class="flex flex-col min-h-screen">
+    <!-- Navbar at top -->
+    <Navbar />
+
+    <!-- Main content fills remaining space -->
+    <main class="flex-1">
+      <slot />
+    </main>
+
+    <!-- Footer sticks to bottom -->
+    <Footer />
+  </body>
 </html>

@@ -21,6 +21,7 @@
     "appwrite": "^21.2.1",
     "astro": "^5.14.6",
     "astro-icon": "^1.1.5",
+    "stripe": "^19.1.0",
     "tailwind-merge": "^3.3.1",
     "tailwind-variants": "^3.1.1",
     "tailwindcss": "^4.1.14",
