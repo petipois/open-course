@@ -3,28 +3,34 @@ import MainLayout from "@/layouts/MainLayout.astro";
 import LessonList from "@/components/LessonList.astro";
 import LessonPlayer from "@/components/LessonPlayer.astro";
 import { getLessons, getLessonProgress, addStudent } from "@/lib/appwrite";
-import { showCourseDetails, studentIsInDB, hasStudentPaid } from "@/lib/helper";
+import {
+  showCourseDetails,
+  studentIsInDB,
+  hasStudentPaid,
+  instructorCheck,
+} from "@/lib/helper";
 
 const user = await Astro.locals.currentUser();
 if (!user) throw Astro.redirect("/login");
-
+const email = user.emailAddresses[0].emailAddress;
 const course = await showCourseDetails();
 const lessons = (await getLessons(course?.$id)) || [];
 
-//is the user already in the db;
+//is the user already in the db?
 const data = await studentIsInDB(user.id);
 if (!data) {
   const student = await addStudent({
-    userID:user?.id, 
+    userID: user?.id,
     name: user?.username,
-    email: user?.emailAddresses[0].emailAddress,
+    email: email,
     courses: [course?.$id],
   });
+  console.log("New student added to DB:", student);
 }
+const isInstructor = await instructorCheck(email);
 const student = await hasStudentPaid(user.id);
-if(!student)
-{
-  return Astro.redirect("/checkout")
+if (!student && !isInstructor) {
+  return Astro.redirect("/checkout");
 }
 
 // Track progress for each lesson

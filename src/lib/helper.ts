@@ -1,7 +1,7 @@
 
 import { getCourse, studentExists, studentHasPaid } from "@/lib/appwrite";
 const INSTRUCTOR_EMAIL = import.meta.env.INSTRUCTOR_EMAIL;
-export function instructorCheck(email: string) {
+export  async function instructorCheck(email: string) {
     if (email == INSTRUCTOR_EMAIL) {
         return true;
     }
