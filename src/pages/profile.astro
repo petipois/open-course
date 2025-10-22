@@ -1,0 +1,89 @@
+---
+import MainLayout from "@/layouts/MainLayout.astro";
+import { getStudent, getLessons } from "@/lib/appwrite";
+import { Progress } from "@/components/starwind/progress";
+
+const user = await Astro.locals.currentUser();
+if (!user) {
+  throw Astro.redirect("/login");
+}
+
+const progress = await getStudent(user.id);
+
+// Setup lesson + progress tracking
+type Lesson = { $id: string; title?: string; [key: string]: any };
+let lessons: Lesson[] = [];
+let totalLessons = 0;
+let completedLessons = 0;
+let progressPercent = 0;
+
+if (progress?.courseID) {
+  lessons = (await getLessons(progress.courseID)) ?? [];
+  totalLessons = lessons?.length || 0;
+
+  // Each student document has an array of completed lesson IDs
+  const completedIDs = progress.lessonID || [];
+
+  completedLessons = lessons?.filter((lesson) =>
+    completedIDs.includes(lesson.$id)
+  ).length;
+
+  progressPercent = totalLessons
+    ? Math.round((completedLessons / totalLessons) * 100)
+    : 0;
+}
+---
+
+<MainLayout>
+  <div class="max-w-md mx-auto py-12 space-y-8">
+    <h1 class="text-2xl font-semibold text-center">
+      Welcome back, {user.firstName || "Student"}!
+    </h1>
+
+    {lessons?.length ? (
+      <div class="p-6 rounded-2xl border shadow-sm bg-white/70 dark:bg-zinc-900/70">
+        <h2 class="text-lg font-medium mb-4">Your Lessons</h2>
+        <ul class="space-y-2">
+          {lessons.map((lesson) => {
+            const isCompleted = progress?.lessonID?.includes(lesson.$id);
+            return (
+              <li
+                class={`flex items-center justify-between px-3 py-2 rounded-lg ${
+                  isCompleted
+                    ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                    : "bg-gray-50 dark:bg-zinc-800 text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                <span>{lesson.title}</span>
+                {isCompleted ? (
+                  <span class="text-green-600 dark:text-green-400 text-sm">✅</span>
+                ) : (
+                  <span class="text-gray-400 text-sm">⬜</span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    ) : (
+      <p class="text-center text-gray-500">No lessons available for your course.</p>
+    )}
+
+    {progress ? (
+      <div class="p-6 rounded-2xl border shadow-sm bg-white/70 dark:bg-zinc-900/70">
+        <h2 class="text-lg font-medium mb-2">Course Progress</h2>
+        <p class="text-sm text-gray-600 mb-4">
+          {completedLessons} of {totalLessons} lessons completed
+        </p>
+
+        <Progress value={progressPercent} class="w-full mb-4" />
+
+        <div class="text-center text-sm text-gray-500">
+          {progressPercent}% complete 🎯
+        </div>
+      </div>
+    ) : (
+      <p class="text-center text-gray-500">No progress yet. Start your course!</p>
+    )}
+  </div>
+</MainLayout>

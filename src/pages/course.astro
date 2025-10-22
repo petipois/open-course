@@ -27,9 +27,9 @@ if (!data) {
   });
   console.log("New student added to DB:", student);
 }
-const isInstructor = await instructorCheck(email);
+//const isInstructor = await instructorCheck(email);
 const student = await hasStudentPaid(user.id);
-if (!student && !isInstructor) {
+if (!student ) {
   return Astro.redirect("/checkout");
 }
 

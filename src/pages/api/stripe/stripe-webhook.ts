@@ -26,7 +26,6 @@ export const POST: APIRoute = async ({ request }) => {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     const studentId = session.metadata?.studentId;
-    const courseId = session.metadata?.courseId;
     const transactionId = session.payment_intent as string;
 
     if (studentId && transactionId) {

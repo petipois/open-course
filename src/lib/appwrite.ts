@@ -260,3 +260,17 @@ export async function updateStudent(userID: string, data: any) {
         return null;
     }
 }
+
+export async function getStudent(userID: string) {
+    try {
+        const result = await tables.listRows({
+            databaseId: COURSE_DATABASE,
+            tableId: "progress",
+            queries: [Query.equal("userID", userID)]
+        });
+        return result.rows[0]; // return the student record
+    } catch (error) {
+        console.error("Error fetching student:", error);
+        return null;
+    }   
+}
