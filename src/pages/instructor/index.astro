@@ -9,7 +9,7 @@ if (!user) {
 } else {
   //CHECK IF THE EMAIL ADDRESS IS THE ONE FOR CREATING THE COURSE
   const email = user.emailAddresses[0].emailAddress;
-  const isInstructor = instructorCheck(email);
+  const isInstructor = await instructorCheck(email);
   const course = await courseExists(); //CHECK IF THERE IS A COURSE IN THE DB
   if (!isInstructor) {
     throw Astro.redirect("/course"); //REDIRECTS TO PUBLIC COURSE PAGE

@@ -1,4 +1,3 @@
-// src/pages/api/checkout.ts
 import type { APIRoute } from "astro";
 import Stripe from "stripe";
 import { studentExists, getCourse } from '@/lib/appwrite';
@@ -11,22 +10,62 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     const formData = await request.formData();
     const customerEmail = formData.get("customerEmail") as string;
-    const studentId = formData.get("studentId") as string;
-
-    if (!customerEmail || !studentId) {
-      return new Response(JSON.stringify({ error: "Email and student ID are required" }), { status: 400 });
+    const userID = formData.get("userID") as string;
+console.log("Received checkout request for userID:", userID, "email:", customerEmail);
+    // Validate inputs
+    if (!customerEmail || !userID) {
+      return new Response(
+        JSON.stringify({ error: "Email and user ID are required" + userID + customerEmail }), 
+        { 
+          status: 400,
+          headers: { "Content-Type": "application/json" }
+        }
+      );
     }
 
-    const exists = await studentExists(studentId);
+  
+
+    // Check if student exists
+    const exists = await studentExists(userID);
     if (!exists) {
-      return new Response(JSON.stringify({ error: "Student not found" }), { status: 404 });
+      console.error(`Student not found: ${userID}`);
+      return new Response(
+        JSON.stringify({ error: "Student not found" }), 
+        { 
+          status: 404,
+          headers: { "Content-Type": "application/json" }
+        }
+      );
     }
 
-    const course = await getCourse(); // returns course.cost in cents
+    // Get course details
+    const course = await getCourse();
     if (!course) {
-      return new Response(JSON.stringify({ error: "Course not found" }), { status: 404 });
+      console.error("No course available");
+      return new Response(
+        JSON.stringify({ error: "Course not found" }), 
+        { 
+          status: 404,
+          headers: { "Content-Type": "application/json" }
+        }
+      );
     }
 
+    // Validate course pricing (Stripe minimum is 50 cents)
+    if (!course.cost || course.cost < 50) {
+      console.error("Invalid course cost:", course.cost);
+      return new Response(
+        JSON.stringify({ error: "Invalid course pricing configuration" }), 
+        { 
+          status: 500,
+          headers: { "Content-Type": "application/json" }
+        }
+      );
+    }
+
+    console.log(`Creating checkout session for user: ${userID}`);
+
+    // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
@@ -36,30 +75,70 @@ export const POST: APIRoute = async ({ request }) => {
             currency: "eur",
             product_data: {
               name: course.title,
-              description: course.description,
+              description: course.description || "Online Course",
             },
-            unit_amount: course.cost,
+            unit_amount: course.cost, // amount in cents
           },
           quantity: 1,
         },
       ],
       customer_email: customerEmail,
-      metadata: { studentId }, // needed for webhook
+      metadata: { 
+        userID: userID, // Store userID for webhook
+        courseId: course.$id,
+      },
+      // Store userID in payment_intent metadata as well for additional tracking
+      payment_intent_data: {
+        metadata: {
+          userID: userID,
+          courseId: course.$id,
+        },
+      },
       success_url: `${import.meta.env.PUBLIC_BASE_URL}/course?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${import.meta.env.PUBLIC_BASE_URL}/checkout`,
+      cancel_url: `${import.meta.env.PUBLIC_BASE_URL}/checkout?canceled=true`,
+      // Session expires after 30 minutes
+      expires_at: Math.floor(Date.now() / 1000) + (30 * 60),
     });
+
+    console.log(`✓ Checkout session created: ${session.id}`);
 
     if (!session.url) {
-      console.error("No session URL returned from Stripe:", session);
-      return new Response(JSON.stringify({ error: "No Checkout URL returned" }), { status: 500 });
+      console.error("No checkout URL returned from Stripe");
+      return new Response(
+        JSON.stringify({ error: "Failed to create checkout session" }), 
+        { 
+          status: 500,
+          headers: { "Content-Type": "application/json" }
+        }
+      );
     }
 
+    // Redirect to Stripe Checkout
     return new Response(null, {
       status: 303,
-      headers: { Location: session.url! },
+      headers: { Location: session.url },
     });
+
   } catch (err: any) {
     console.error("Stripe checkout error:", err);
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    
+    // Provide user-friendly error messages
+    let errorMessage = "An error occurred during checkout";
+    
+    if (err.type === "StripeInvalidRequestError") {
+      errorMessage = "Invalid payment configuration. Please contact support.";
+    } else if (err.type === "StripeAPIError") {
+      errorMessage = "Payment service temporarily unavailable. Please try again.";
+    } else if (err.type === "StripeConnectionError") {
+      errorMessage = "Network error. Please check your connection and try again.";
+    }
+
+    return new Response(
+      JSON.stringify({ error: errorMessage }), 
+      { 
+        status: 500,
+        headers: { "Content-Type": "application/json" }
+      }
+    );
   }
 };

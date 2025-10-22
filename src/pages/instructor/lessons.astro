@@ -15,7 +15,7 @@ const user = await Astro.locals.currentUser();
 if (!user) throw Astro.redirect("/login");
 
 const email = user.emailAddresses[0].emailAddress;
-const isInstructor = instructorCheck(email);
+const isInstructor = await instructorCheck(email);
 const course = await courseExists();
 
 if (!isInstructor) throw Astro.redirect("/course");
@@ -51,7 +51,7 @@ const addIcon = "mdi:add";
       <header class="text-center space-y-2">
         <h1 class="text-4xl font-bold text-gray-900">{theCourse?.title}</h1>
         <p class="text-gray-700 text-lg">{theCourse?.description}</p>
-        <img src={theCourse?.thumbnail} alt={theCourse?.title}/>
+        <img src={theCourse?.thumbnail} alt=`Course Image for - ${theCourse?.title}`/>
       </header>
 
       <!-- Lessons List -->

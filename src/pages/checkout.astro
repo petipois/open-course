@@ -13,8 +13,7 @@ if (!user) {
 
 // Fetch student payment status
 const studentPaid = await studentHasPaid(user?.id);
-if(studentPaid)
-{
+if (studentPaid) {
     return Astro.redirect("/course");
 }
 ---
@@ -22,7 +21,10 @@ if(studentPaid)
 <MainLayout>
     <div class="max-w-xl mx-auto mt-16 p-6 bg-white rounded-2xl shadow-lg">
         <h1 class="text-3xl font-bold mb-4 text-center">Course Checkout</h1>
-        <img src={theCourse?.thumbnail} />
+        <img
+            src={theCourse?.thumbnail}
+            alt=`Course Image for - ${theCourse?.title}`
+        />
 
         {
             (
@@ -39,7 +41,7 @@ if(studentPaid)
                         class="mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
 
-                    <input type="hidden" name="studentId" value={user?.id} />
+                    <input type="hidden" name="userID" value={user.id} />
 
                     <Button
                         type="submit"
