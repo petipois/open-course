@@ -51,7 +51,7 @@
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/opencourse.git
+git clone https://github.com/petipois/opencourse.git
 cd opencourse
 npm install
 
@@ -76,13 +76,52 @@ INSTRUCTOR_EMAIL=<your_email@example.com>
 
 PUBLIC_URL=http://localhost:3000
 
-INSTRUCTOR_EMAIL auto-redirects the instructor to the dashboard after login.
+INSTRUCTOR_EMAIL=""
+### auto-redirects the instructor to the dashboard after login.
 
 ### Appwrite Collections
 
-Courses: title, description, price
-Lessons: course_id, title, description, playback_id, order
-Students: email, paid, current_lesson_id, progress (array), transaction_id
+courses: 
+title             string
+description       string
+lessons[]         relationship
+students[]        relationship
+cost              integer
+thumbnail         string
+creatorID         string
+stripeProductId   string
+stripePriceId     string
+
+lessons: 
+title             string
+description       string
+courseID[]        relationship
+order             integer
+videoID           string
+creatorID         string
+
+
+students: 
+email             string
+name              string
+courses[]         relationship
+transaction_id    string
+userID            string
+paymentDate       datetime
+
+creators: 
+email             string
+credits           integer
+creatorName       string
+
+
+progress: 
+userID              string
+lessonID            string
+courseID            string
+completed           boolean
+completedAt         datetime
+progressPercentage  double
 
 ## API Routes
 Instructor / Course Management
@@ -134,20 +173,27 @@ Instructor / Course Management
                                 +---------------------+
 ## Frontend Structure
 /src/pages
-  /student.astro        # Student view
+  /student.astro      # Student view
   /instructor/
       [id].astro      # update lesson by id
       lessons.astro   # all lessons info
       index.astro     # Instructor dashboard
   /login.astro        # Clerk login
-  /index.astro          # home page
-  /course.astro       #course page
-/src/pages/api
-  
-  /stripe/checkout.ts
-  /stripe/webhook.ts
+  /index.astro        # home page
+  /course.astro       # course page
+  /profile.astro
+  /checkout.astro
+/src/pages/api        # astro api routes
+  /add-lesson.ts
+  /create-course.ts
+  /delete-lesson.ts
+  /mark-complete.ts
+  /update-lesson.ts
+  /upload.ts
+  /stripe-checkout.ts # stripe checkout
+  /stripe-webhook.ts  # stripe webhook
 /src/components
-  Hero.astro
+  Hero.astro           #
   HowItWorks.astro
   Navbar.astro
   Footer.astro
@@ -157,7 +203,8 @@ Instructor / Course Management
 /src/lib
   appwrite.ts           # Appwrite helpers
   stripe.ts             # Stripe helpers
-
+ middleware.ts          # clerk
+ .env
 ## More frontend customization
 
 Change the index.astro to fit your style.
