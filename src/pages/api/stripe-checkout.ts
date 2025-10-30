@@ -54,8 +54,6 @@ export const POST: APIRoute = async ({ request }) => {
         currency: "eur",
       });
 
-      // 🔁 (Optionally update your Appwrite course to store IDs)
-      // await updateCourseStripeInfo(course.$id, product.id, price.id);
 
       course.stripePriceId = price.id;
     }
