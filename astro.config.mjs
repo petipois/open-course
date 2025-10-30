@@ -11,7 +11,8 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  output: "server",
+  output:"static",
+  //output: "server",
   integrations: [icon(), clerk()],
   adapter: node({
     mode: "standalone",
