@@ -1,5 +1,5 @@
 ---
-import MainLayout from "@/layouts/MainLayout.astro";
+import DefaultLayout from "@/layouts/DefaultLayout.astro";
 import { getStudent, getLessons } from "@/lib/appwrite";
 import { Progress } from "@/components/starwind/progress";
 
@@ -34,7 +34,7 @@ if (progress?.courseID) {
 }
 ---
 
-<MainLayout>
+<DefaultLayout>
   <div class="max-w-md mx-auto py-12 space-y-8">
     <h1 class="text-2xl font-semibold text-center">
       Welcome back, {user.firstName || "Student"}!
@@ -86,4 +86,4 @@ if (progress?.courseID) {
       <p class="text-center text-gray-500">No progress yet. Start your course!</p>
     )}
   </div>
-</MainLayout>
+</DefaultLayout>

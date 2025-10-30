@@ -1,5 +1,5 @@
 ---
-import MainLayout from "@/layouts/MainLayout.astro";
+import DefaultLayout from "@/layouts/DefaultLayout.astro";
 import LessonList from "@/components/LessonList.astro";
 import LessonPlayer from "@/components/LessonPlayer.astro";
 import { getLessons, getLessonProgress, addStudent } from "@/lib/appwrite";
@@ -14,7 +14,7 @@ const user = await Astro.locals.currentUser();
 if (!user) throw Astro.redirect("/login");
 const email = user.emailAddresses[0].emailAddress;
 const course = await showCourseDetails();
-const lessons = (await getLessons(course?.$id)) || [];
+const lessons = (await getLessons(course?.id)) || [];
 
 //is the user already in the db?
 const data = await studentIsInDB(user.id);
@@ -41,11 +41,11 @@ for (const lesson of lessons) {
 }
 ---
 
-<MainLayout>
+<DefaultLayout>
   <div class="flex min-h-screen bg-gray-50">
     <LessonList lessons={lessons} lessonProgress={lessonProgress} />
     <main class="flex-1 px-10 py-8">
       <LessonPlayer lessons={lessons} user={user} courseID={course?.$id} />
     </main>
   </div>
-</MainLayout>
+</DefaultLayout>

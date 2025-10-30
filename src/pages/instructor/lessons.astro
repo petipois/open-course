@@ -1,5 +1,5 @@
 ---
-import MainLayout from "@/layouts/MainLayout.astro";
+import DefaultLayout from "@/layouts/DefaultLayout.astro";
 import { Input } from "@/components/starwind/input";
 import { Button } from "@/components/starwind/button";
 import { MuxUploader } from "@mux/mux-uploader-astro";
@@ -37,12 +37,12 @@ const upload = await mux.video.uploads.create({
 
 // 📘 Course and lessons
 const theCourse = await showCourseDetails();
-const allLessons = await getLessons(theCourse?.$id);
+const allLessons = await getLessons(theCourse?.id);
 const editIcon = "mdi:edit";
 const addIcon = "mdi:add";
 ---
 
-<MainLayout>
+<DefaultLayout>
   <section class="min-h-screen bg-gray-50 py-12">
     <div
       class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8 space-y-10"
@@ -217,4 +217,4 @@ const addIcon = "mdi:add";
       saveBtn.textContent = "Retry Upload";
     });
   </script>
-</MainLayout>
+</DefaultLayout>

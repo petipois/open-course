@@ -1,5 +1,5 @@
 ---
-import MainLayout from "@/layouts/MainLayout.astro";
+import DefaultLayout from "@/layouts/DefaultLayout.astro";
 import { Input } from "@/components/starwind/input";
 import { Button } from "@/components/starwind/button";
 import { getLessons } from "@/lib/appwrite";
@@ -12,7 +12,7 @@ if (!user) throw Astro.redirect("/login");
 // Get route params
 const lesson = Astro.params.id;
 const email = user.emailAddresses[0].emailAddress;
-const isInstructor = instructorCheck(email);
+const isInstructor = await instructorCheck(email);
 
 // Check course exists
 const course = await courseExists();
@@ -21,14 +21,14 @@ if (isInstructor && !course) throw Astro.redirect("/instructor");
 
 // 📘 Course and lessons
 const theCourse = await showCourseDetails();
-const allLessons = await getLessons(theCourse?.$id);
+const allLessons = await getLessons(theCourse?.id);
 
 let currentLesson = null;
 if (allLessons && lesson) {
   currentLesson = allLessons.find((l) => l.$id === lesson) || null;
 }
 ---
-<MainLayout>
+<DefaultLayout>
   <section class="min-h-screen bg-gray-50 py-12">
     <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8 space-y-8">
       <!-- 🧭 Header -->
@@ -127,4 +127,4 @@ if (allLessons && lesson) {
       }
     </div>
   </section>
-</MainLayout>
+</DefaultLayout>
