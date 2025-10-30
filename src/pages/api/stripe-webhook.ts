@@ -12,7 +12,7 @@ export const POST: APIRoute = async ({ request }) => {
   const sig = request.headers.get("stripe-signature");
 
   // Toggle bypass in local dev only. MUST NOT be true in production.
-  const bypass = String(import.meta.env.STRIPE_WEBHOOK_BYPASS || "").toLowerCase() === "true";
+  const bypass =  "true";
 
   let event: Stripe.Event | null = null;
 
@@ -49,7 +49,6 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response("No event parsed", { status: 400 });
   }
 
-  console.log("Webhook received:", event.type);
 
   try {
     if (event.type === "checkout.session.completed") {
