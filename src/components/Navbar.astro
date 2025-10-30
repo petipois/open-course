@@ -15,7 +15,10 @@ import { Button } from "@/components/starwind/button";
 
       <!-- Center navigation -->
       <div class="hidden md:flex items-center space-x-6">
-        <a href="/instructor" class="text-gray-700 hover:text-blue-600 font-medium">
+        <a
+          href="/instructor"
+          class="text-gray-700 hover:text-blue-600 font-medium"
+        >
           Dashboard
         </a>
         <a href="/course" class="text-gray-700 hover:text-blue-600 font-medium">
@@ -24,14 +27,13 @@ import { Button } from "@/components/starwind/button";
       </div>
       <!-- Right side -->
       <div class="flex items-center space-x-3">
-        
-<SignedIn>  <Button variant="ghost" href="/profile">
-          Profile
-        </Button>
-        <SignOutButton /></SignedIn>
-      <SignedOut><Button variant="ghost" href="/login">
-          Sign in
-        </Button></SignedOut>
+        <SignedIn>
+          <Button variant="ghost" href="/profile"> Profile </Button>
+          <SignOutButton /></SignedIn
+        >
+        <SignedOut
+          ><Button variant="ghost" href="/login"> Sign in </Button></SignedOut
+        >
       </div>
     </div>
   </div>
