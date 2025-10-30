@@ -8,7 +8,6 @@ import { showCourseDetails, courseExists, instructorCheck } from "@/lib/helper";
 import { Icon } from "astro-icon/components";
 import Mux from "@mux/mux-node";
 import Badge from "@/components/starwind/badge";
-import { Image } from "astro:assets";
 
 // 🔒 Verify user
 const user = await Astro.locals.currentUser();
@@ -37,7 +36,7 @@ const upload = await mux.video.uploads.create({
 
 // 📘 Course and lessons
 const theCourse = await showCourseDetails();
-const allLessons = await getLessons(theCourse?.id);
+const allLessons = await getLessons(theCourse?.$id!);
 const editIcon = "mdi:edit";
 const addIcon = "mdi:add";
 ---

@@ -5,7 +5,7 @@ import { studentExists, getCourse } from '@/lib/appwrite';
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-09-30.clover",
 });
-const PRICE_ID =  import.meta.env.STRIPE_PRICE_ID;
+
 export const POST: APIRoute = async ({ request }) => {
   try {
     const formData = await request.formData();
@@ -14,23 +14,23 @@ export const POST: APIRoute = async ({ request }) => {
     // Validate inputs
     if (!customerEmail || !userID) {
       return new Response(
-        JSON.stringify({ error: "Email and user ID are required" + userID + customerEmail }), 
-        { 
+        JSON.stringify({ error: "Email and user ID are required" + userID + customerEmail }),
+        {
           status: 400,
           headers: { "Content-Type": "application/json" }
         }
       );
     }
 
-  
+
 
     // Check if student exists
     const exists = await studentExists(userID);
     if (!exists) {
       console.error(`Student not found: ${userID}`);
       return new Response(
-        JSON.stringify({ error: "Student not found" }), 
-        { 
+        JSON.stringify({ error: "Student not found" }),
+        {
           status: 404,
           headers: { "Content-Type": "application/json" }
         }
@@ -42,8 +42,8 @@ export const POST: APIRoute = async ({ request }) => {
     if (!course) {
       console.error("No course available");
       return new Response(
-        JSON.stringify({ error: "Course not found" }), 
-        { 
+        JSON.stringify({ error: "Course not found" }),
+        {
           status: 404,
           headers: { "Content-Type": "application/json" }
         }
@@ -54,8 +54,8 @@ export const POST: APIRoute = async ({ request }) => {
     if (!course.cost || course.cost < 50) {
       console.error("Invalid course cost:", course.cost);
       return new Response(
-        JSON.stringify({ error: "Invalid course pricing configuration" }), 
-        { 
+        JSON.stringify({ error: "Invalid course pricing configuration" }),
+        {
           status: 500,
           headers: { "Content-Type": "application/json" }
         }
@@ -69,12 +69,12 @@ export const POST: APIRoute = async ({ request }) => {
       mode: "payment",
       line_items: [
         {
-          price: PRICE_ID,
+          price: course.stripepriceID, // must be a valid Stripe price ID
           quantity: 1,
         },
       ],
       customer_email: customerEmail,
-      metadata: { 
+      metadata: {
         userID: userID, // Store userID for webhook
         courseId: course.$id,
       },
@@ -96,8 +96,8 @@ export const POST: APIRoute = async ({ request }) => {
     if (!session.url) {
       console.error("No checkout URL returned from Stripe");
       return new Response(
-        JSON.stringify({ error: "Failed to create checkout session" }), 
-        { 
+        JSON.stringify({ error: "Failed to create checkout session" }),
+        {
           status: 500,
           headers: { "Content-Type": "application/json" }
         }
@@ -112,10 +112,10 @@ export const POST: APIRoute = async ({ request }) => {
 
   } catch (err: any) {
     console.error("Stripe checkout error:", err);
-    
+
     // Provide user-friendly error messages
     let errorMessage = "An error occurred during checkout";
-    
+
     if (err.type === "StripeInvalidRequestError") {
       errorMessage = "Invalid payment configuration. Please contact support.";
     } else if (err.type === "StripeAPIError") {
@@ -125,8 +125,8 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     return new Response(
-      JSON.stringify({ error: errorMessage }), 
-      { 
+      JSON.stringify({ error: errorMessage }),
+      {
         status: 500,
         headers: { "Content-Type": "application/json" }
       }

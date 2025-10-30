@@ -21,7 +21,7 @@ if (isInstructor && !course) throw Astro.redirect("/instructor");
 
 // 📘 Course and lessons
 const theCourse = await showCourseDetails();
-const allLessons = await getLessons(theCourse?.id);
+const allLessons = await getLessons(theCourse?.$id!);
 
 let currentLesson = null;
 if (allLessons && lesson) {
