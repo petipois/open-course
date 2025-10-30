@@ -38,9 +38,6 @@ export const POST: APIRoute = async ({ request }) => {
           await updateStudent(userID, {
             transaction_id: transactionId,
             paymentDate: new Date().toISOString(),
-            amount: session.amount_total,
-            currency: session.currency,
-            paymentStatus: "paid",
           });
           console.log(`✅ Student ${userID} updated with transaction ${transactionId}`);
         } catch (err) {
